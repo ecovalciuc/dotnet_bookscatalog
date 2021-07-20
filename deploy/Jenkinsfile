@@ -1,0 +1,38 @@
+pipeline {
+    environment {
+        USER = "ecovalciuc-bookscatalog"
+        ECR_REPO = "315727832121.dkr.ecr.us-east-1.amazonaws.com"
+        CONTAINER_NAME = "ecovalciuc-dotnet-bookscatalog"
+        DEPLOY_NAME = "ecovalciuc-dotnet-deployment"
+        NAMESPACE = "ecovalciuc-dotnet-prod"
+    }
+    
+    agent {
+        node {
+            label 'Slave01'
+        }
+    }
+  
+    stages {
+
+        // Return image name and tag 
+        stage('SHOW PARAM') {
+            steps {
+                // cleanWs()
+                echo "$ECR_image_IMAGE" // will print selected image name value
+                echo "$ECR_image" // will print selected image name with tag
+                echo "$ECR_image_TAG" // will print selected tag value
+            }     
+        }
+        // Will replace deployment image to a newly chosen one
+        stage('IMAGE REPLACE') {
+            steps {
+                sh "kubectl get all -n ecovalciuc-dotnet-prod"
+                sh "kubectl set image deployment/${DEPLOY_NAME} ${CONTAINER_NAME}=${ECR_REPO}/${USER}:$ECR_image_TAG -n ${NAMESPACE}"
+                sh "sleep 20"
+                sh "kubectl get all -n ecovalciuc-dotnet-prod"
+                sh "kubectl describe deployment -n ecovalciuc-dotnet-prod"
+            }
+        }
+    }
+}

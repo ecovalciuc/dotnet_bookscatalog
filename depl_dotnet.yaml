@@ -1,0 +1,39 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ecovalciuc-dotnet-service
+  namespace: ecovalciuc-dotnet-prod
+  labels:
+    app: dotnet-bookscatalog
+spec:
+  selector:
+    app: dotnet-bookscatalog
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecovalciuc-dotnet-deployment
+  namespace: ecovalciuc-dotnet-prod
+  labels:
+    app: dotnet-bookscatalog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dotnet-bookscatalog
+  template:
+    metadata:
+      labels:
+        app: dotnet-bookscatalog
+    spec:
+      containers:
+      - name: ecovalciuc-dotnet-bookscatalog
+        image: 315727832121.dkr.ecr.us-east-1.amazonaws.com/ecovalciuc-bookscatalog:latest
+        ports:
+        - containerPort: 8080
+---
